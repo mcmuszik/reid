@@ -1,0 +1,11 @@
+body {
+    width: 100em;
+    height: 100vh;
+}
+
+form {
+margin-left: 50%;
+}
+input {
+    margin-left: 10%;
+}
