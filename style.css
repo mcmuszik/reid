@@ -9,3 +9,8 @@ margin-left: 50%;
 input {
     margin-left: 10%;
 }
+
+.search_icon {
+    height: 10px;
+    width: 1%;
+}
