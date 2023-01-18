@@ -76,7 +76,12 @@ def format_table(table):
 
 
 def scrape(city_or_zipcode: str, state: str, rent=False):
-	"""Gathers the listing data from a search page"""
+	"""Gathers the listing data from a search page
+	
+	[Marc 1/17/23]: I know this function is such a clusterfuck. I can barely
+	read it myself. I need to refactor it so it's actually understandable,
+	but for now, ¯\_(ツ)_/¯
+	"""
 	region = f"{city_or_zipcode},-{state}"
 	search_url = f"https://www.zillow.com/{region}/"
 	pages = []
@@ -112,7 +117,7 @@ def scrape(city_or_zipcode: str, state: str, rent=False):
 			logging.info(f"Page {page} done, {len(listings)} listings found. Inserting into dataframe...")
 			
 			#Create new table with defined schema:
-			empty_table = pd.DataFrame({key: pd.Series(dtype=val) for key, val in table_schema.items()})
+			table = pd.DataFrame({key: pd.Series(dtype=val) for key, val in table_schema.items()})
 			#And a new table with the new data
 			new_data = pd.DataFrame(clean_results(listings))
 			#Get only the columns the new data has in common with schema
@@ -148,7 +153,16 @@ def scrape(city_or_zipcode: str, state: str, rent=False):
 
 
 def deploy(request):
-	"""Responds to any HTTP request.
+	"""
+	This function actually exists as a Google Cloud Function to help prevent
+	us from getting blocked by Zillow. If Zillow sees a ton of requests all coming
+	from the same machine, it's more likely they'll block us out. But by using
+	Google Cloud Functions, we can run the code on different machines and hopefully
+	work around their blocks.
+	
+	The majority of this code was prewritten by Google. Their docstring starts here.
+	=================================================================================
+	Responds to any HTTP request.
 
 	Args:
 		request (flask.Request): HTTP request object.
@@ -175,11 +189,8 @@ def deploy(request):
 
 
 if __name__ == '__main__':
+	# [Marc 1/17/23]: This section looks like it doesn't have any effect...
 	os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "function_source/firestore_credentials.json"
 	db = bigquery.Client(project='webscraper-329918')
 	table_ref = db.dataset('listings').table('listings')
 	table_ref = db.get_table(table_ref)
-
-
-
-# pprint(Counter([k for l in listings for k in list(l.keys()) ]))
