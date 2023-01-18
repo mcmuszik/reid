@@ -1,4 +1,5 @@
 body {
+    display: flexbox;
     width: 100em;
     height: 100vh;
 }
@@ -11,6 +12,6 @@ input {
 }
 
 .search_icon {
-    height: 10px;
-    width: 1%;
+    height: 10%;
+    width: 10%;
 }
