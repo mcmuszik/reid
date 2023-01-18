@@ -6,7 +6,6 @@ from contextlib import suppress
 import datetime as dt
 import re
 import logging
-from static_resources.table_schema import table_schema
 # Parsing Imports
 from bs4 import BeautifulSoup
 import requests
@@ -17,6 +16,7 @@ from os import _exit
 from google.cloud import bigquery
 
 headers = json.load(open('static_resources/headers.json', 'r'))
+table_schema = json.load(open('static_resources/table_schema.json', 'r'))
 
 def flatten(d, parent_key='', sep='_'):
 	items = []
