@@ -82,11 +82,12 @@ def scrape(city_or_zipcode: str, state: str, rent=False):
 	read it myself. I need to refactor it so it's actually understandable,
 	but for now, ¯\_(ツ)_/¯
 	"""
-	region = f"{city_or_zipcode},-{state}"
+	region = f"{city_or_zipcode}-{state}"
 	search_url = f"https://www.zillow.com/{region}/"
 	pages = []
 
-	if rent: search_url += 'rent/'
+	if rent: 
+		search_url += 'rent/'
 	listings = []
 	pages = [i for i in range(1, 26)] if not pages else pages
 	total_listings = 0
@@ -94,12 +95,11 @@ def scrape(city_or_zipcode: str, state: str, rent=False):
 	for page in pages:
 		logging.info(f"Working on page {page}")
 		try:
-			resp = requests.get(f"{search_url}{page}_p/", headers=headers)
+			resp = requests.get(f"{search_url}page_{page}/", headers=headers)
 			logging.info("Request finished")
 			soup = BeautifulSoup(resp.content, "html.parser")
 			if "Please verify you're a human to continue." in resp.text:
 				return "Captcha blocked"
-
 			listings = soup.find(
 			"script",
 			attrs={"data-zrr-shared-data-key": "mobileSearchPageStore"})
@@ -189,8 +189,18 @@ def deploy(request):
 
 
 if __name__ == '__main__':
-	# [Marc 1/17/23]: This section looks like it doesn't have any effect...
+	city_or_zipcode ='37921'
+	state = 'TN'
+	scrape(37921, 'TN')
+	
 	os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "function_source/firestore_credentials.json"
 	db = bigquery.Client(project='webscraper-329918')
-	table_ref = db.dataset('listings').table('listings')
-	table_ref = db.get_table(table_ref)
+
+	zipcode = 37920
+	query = f"""
+			SELECT * FROM listings.listings
+			where zipcode = {zipcode}
+			"""
+	df = db.query(query).to_dataframe()
+
+	pd.read_gbq(query)
